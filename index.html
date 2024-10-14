@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .question {
+            margin: 15px 0;
+        }
+        input {
+            padding: 8px;
+            width: 100px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 150px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Math Quiz Game</h1>
+        <div id="question-container"></div>
+        <div id="result-container" class="hidden">
+            <h3 id="result"></h3>
+            <button id="replay-btn" class="hidden">Play Again</button>
+        </div>
+        <button id="start-btn">Start Quiz</button>
+    </div>
+
+    <script>
+        const totalQuestions = 5;
+        let difficulty = 1;
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        const startButton = document.getElementById('start-btn');
+        const questionContainer = document.getElementById('question-container');
+        const resultContainer = document.getElementById('result-container');
+        const resultDisplay = document.getElementById('result');
+        const replayButton = document.getElementById('replay-btn');
+
+        // Function to generate random math problems
+        function generateProblem(difficulty) {
+            const num1 = Math.floor(Math.random() * 10 * difficulty) + 1;
+            const num2 = Math.floor(Math.random() * 10 * difficulty) + 1;
+            const operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+            let correctAnswer;
+            
+            switch (operator) {
+                case '+':
+                    correctAnswer = num1 + num2;
+                    break;
+                case '-':
+                    correctAnswer = num1 - num2;
+                    break;
+                case '*':
+                    correctAnswer = num1 * num2;
+                    break;
+            }
+            return { num1, operator, num2, correctAnswer };
+        }
+
+        // Function to show a math problem
+        function displayQuestion() {
+            const { num1, operator, num2 } = questions[currentQuestionIndex];
+            questionContainer.innerHTML = `
+                <div class="question">
+                    <p>What is ${num1} ${operator} ${num2}?</p>
+                    <input type="number" id="user-answer" placeholder="Enter answer" />
+                    <button onclick="checkAnswer()">Submit</button>
+                </div>
+            `;
+        }
+
+        // Function to check the user's answer
+        function checkAnswer() {
+            const userAnswer = Number(document.getElementById('user-answer').value);
+            const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                alert("Correct! ✅");
+            } else {
+                alert(`Incorrect! The correct answer was ${correctAnswer}. ❌`);
+            }
+
+            currentQuestionIndex++;
+
+            // Increase difficulty every 3 correct answers
+            if (score % 3 === 0 && score !== 0) {
+                difficulty++;
+                alert("Level up! 🔥 Difficulty increased!");
+            }
+
+            if (currentQuestionIndex < totalQuestions) {
+                displayQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        // Function to end the quiz and show results
+        function endQuiz() {
+            questionContainer.innerHTML = '';
+            resultContainer.classList.remove('hidden');
+            resultDisplay.innerHTML = `Game Over! 🏁<br>Your final score is ${score}/${totalQuestions}`;
+            replayButton.classList.remove('hidden');
+        }
+
+        // Function to start the quiz
+        function startQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            difficulty = 1;
+            questions = [];
+
+            // Generate questions based on the difficulty
+            for (let i = 0; i < totalQuestions; i++) {
+                questions.push(generateProblem(difficulty));
+            }
+
+            resultContainer.classList.add('hidden');
+            replayButton.classList.add('hidden');
+            startButton.classList.add('hidden');
+            displayQuestion();
+        }
+
+        // Event listener for the start button
+        startButton.addEventListener('click', startQuiz);
+
+        // Event listener for the replay button
+        replayButton.addEventListener('click', () => {
+            startButton.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
